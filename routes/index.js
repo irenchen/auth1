@@ -16,11 +16,22 @@ router.get('/login', (req, res, next) => {
   res.render('login', { errors: errors});
 });
 
-router.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true,
-}));
+// router.post('/login', passport.authenticate('local', {
+//   successRedirect: '/',
+//   failureRedirect: '/login',
+//   failureFlash: true,
+// }));
+
+router.post('/login', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if(err) return res.send('database error');
+    if(!user) return res.send('login info error');
+    req.logIn(user, function(err) {
+      if(err) return res.send('session error');
+      res.send('success user email : ' + user.email);
+    });
+  })(req, res);
+});
 
 router.get('/logout', (req, res, next) => {
   req.logOut();
